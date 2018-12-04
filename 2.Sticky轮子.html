@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Sticky轮子</title>
+  </head>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+    }
+    .sticky {
+      position: fixed;
+      left: 0;
+      top: 0;
+    }
+
+    #topbar {
+      color: #fff;
+      background-color: green;
+      height: 60px;
+      text-align: center;
+      opacity: 0.5;
+      width: 100%;
+    }
+
+    main {
+      height: 1200px;
+    }
+  </style>
+  <body>
+    <!-- 用paceholder做占位符,防止内容上移 -->
+    <div id="topbar">topbar</div>
+    <main>
+      主体内容
+      <p>内容1</p>
+      <p>内容2</p>
+      <p>内容3</p>
+      <p>内容4</p>
+      <p>内容5</p>
+      <p>内容6</p>
+      <p>内容7</p>
+      <p>内容8</p>
+      <p>内容9</p>
+      <p>内容10</p>
+      <button>给我黏住</button>
+      <p>内容11</p>    
+      <p>内容12</p>
+      <p>内容13</p>
+    </main>
+  </body>
+</html>
+<script src="http://code.jquery.com/jquery-2.1.4.min.js"></script>
+<!--
+  <script>
+    // Bug1:解决滚动一像素，下面内容上移，给一个占位容器
+    var wrapper = $('<div class="wrapper"></div>');
+    wrapper.height($("#topbar").outerHeight());
+    $("#topbar").wrap(wrapper);
+
+    wrapper.height($("button").outerHeight());
+    $("button").wrap(wrapper);
+
+    // 获取其在页面中位置
+    var buttonOffset = $("button").offset().top;
+    // console.log(buttonOffset)
+    $(window).on("scroll", function() {
+      //   获取页面滚动距离
+      var topScrollY = window.scrollY;
+      if (topScrollY > 0) {
+        $("#topbar").addClass("sticky");
+      } else {
+        $("#topbar").removeClass("sticky");
+      }
+
+      if (topScrollY + 60 > buttonOffset) {
+        $("button")
+          .addClass("sticky")
+          .css("top", 60);
+      } else {
+        $("button").removeClass("sticky");
+      }
+    });
+  </script>
+-->
+<script>
+  // 面向对象封装轮子
+  class Sticky {
+    // 需要的参数选择器和高度
+    // 高度是已有固定位置的高度
+    constructor(selector, height) {
+      this.elements = $(selector);
+      this.height = height || 0;
+      this.addWrapper();
+      this.cacheOffsets();
+      this.listenToScroll();
+    }
+    // 第一步:给每一个需要固定的元素套一个壳占位
+    // 用outerHeight外盒子高度
+    addWrapper() {
+      var wrapper = $('<div class="wrapper"></div>'); 
+      wrapper.height(this.elements.outerHeight());     
+      this.elements.each((index, element) => {      
+        $(element).wrap(wrapper);
+      });
+    }
+    // 第二步:获取其在页面中的位置
+    cacheOffsets() {
+      this.offsetArray = [];
+      this.elements.each((index, element) => {
+        this.offsetArray[index] = $(element).offset().top;
+      });
+      console.log(this.offsetArray);
+    }
+
+    // 第三步:监听滚动事件
+    listenToScroll() {
+      $(window).on("scroll", () => {
+        //   获取页面滚动距离
+        var topScrollY = window.scrollY;
+        this.elements.each((index, element) => {
+          if (topScrollY + this.height > this.offsetArray[index]) {
+            this.elements.addClass("sticky").css("top", this.height);
+          } else {
+            this.elements.removeClass("sticky");
+          }
+        });
+      });
+    }
+  }
+  new Sticky("#topbar");
+  new Sticky("button",60);
+</script>
