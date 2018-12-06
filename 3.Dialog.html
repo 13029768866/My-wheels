@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<style>
+    .wzjDialog {
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        right: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: -webkit-flex;
+        display: -moz-flex;
+        display: -ms-flex;
+        display: -o-flex;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .wzjDialog_wrapper {
+        min-width: 200px;
+        padding: 20px;
+        background-color: #fff;
+
+    }
+
+    .wzjDialog_header {
+        border-bottom: 1px solid #000;
+        font-weight: 700;
+    }
+
+    .wzjDialog_main {
+        padding: 10px 0;
+    }
+
+    .wzjDialog_footer {
+        text-align: right;
+    }
+
+    .wzjDialog_footer button {
+        margin-left: 10px;
+    }
+</style>
+
+<body>
+    <button id="x">点击</button>
+
+</body>
+
+</html>
+<script src="http://code.jquery.com/jquery-2.1.4.min.js"></script>
+<script>
+    class Dialog {
+        constructor(options) {
+            this.options = options
+            this.init()
+        }
+        init() {
+            let {
+                title,
+                content,
+                buttons
+            } = this.options
+            let $buttons = buttons.map((buttonOption) => {
+                let $button = $('<button></button>')
+                $button.text(buttonOption.text)
+                $button.on('click', buttonOption.action)
+                return $button
+            })
+            var template =
+                `
+     <div class="wzjDialog">
+     <div class="wzjDialog_wrapper">
+       <header class="wzjDialog_header">${title}</header>
+     <main class="wzjDialog_main">${content}</main>
+     <div class="wzjDialog_footer">
+     </div>
+     </div>
+  </div>
+  `
+            var $dialog = $(template)
+            $dialog.find('.wzjDialog_footer').append($buttons)
+            this.$dialog = $dialog
+        }
+        open() {
+            this.$dialog.appendTo('body')
+        }
+        close() {
+            this.$dialog.detach()
+        }
+    }
+
+    x.onclick = function () {
+        
+        
+        var dialog = new Dialog({
+            title: '标题',
+            content: '内容',
+            buttons: [{
+                text: '确定',
+                action: function () {
+                    setTimeout(() => {
+                        dialog.close()
+                    }, 3000)
+                }
+            }, {
+                text: '取消',
+                action: function () {
+                    dialog.close()
+                }
+            }]
+        })
+        dialog.open()
+    }
+</script>
