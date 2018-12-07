@@ -55,67 +55,168 @@
 </body>
 
 </html>
-<script src="http://code.jquery.com/jquery-2.1.4.min.js"></script>
-<script>
+<script src="jquery-2.2.4.min.js"></script>
+<!-- <script>   
     class Dialog {
         constructor(options) {
             this.options = options
             this.init()
         }
         init() {
+            // 初始化获取用户参数
             let {
                 title,
                 content,
                 buttons
             } = this.options
-            let $buttons = buttons.map((buttonOption) => {
-                let $button = $('<button></button>')
-                $button.text(buttonOption.text)
-                $button.on('click', buttonOption.action)
-                return $button
-            })
+
+            // 创建弹窗模板
             var template =
                 `
-     <div class="wzjDialog">
-     <div class="wzjDialog_wrapper">
-       <header class="wzjDialog_header">${title}</header>
-     <main class="wzjDialog_main">${content}</main>
-     <div class="wzjDialog_footer">
-     </div>
-     </div>
-  </div>
-  `
+                <div class="wzjDialog">
+                    <div class="wzjDialog_wrapper">
+                        <header class="wzjDialog_header">${title}</header>
+                        <main class="wzjDialog_main">${content}</main>
+                        <footer class="wzjDialog_footer"></footer>                 
+                    </div>
+                </div>
+        `
+            // 根据参数buttons遍历添加按钮
+            var $buttons = buttons.map((buttonsOption) => {
+                // 创建按钮
+                var $button = $('<button></button>')
+                // 获取文本
+                $($button).text(buttonsOption.text)
+                // 绑定事件
+                $($button).on('click',buttonsOption.action)
+                return $button
+            })
+            // 模板挂载
             var $dialog = $(template)
             $dialog.find('.wzjDialog_footer').append($buttons)
             this.$dialog = $dialog
         }
+        
+        // 弹窗显示
         open() {
             this.$dialog.appendTo('body')
         }
+        // 弹窗关闭
         close() {
             this.$dialog.detach()
         }
+    }   
+    x.onclick = function(){
+        var dialog = new Dialog({
+            title:'标题',
+            content: 'wzj牛逼',
+            buttons:[
+                {
+                text:'确定',
+                action:function(){
+                    setTimeout(()=>{
+                        dialog.close()
+                    },3000)
+                }
+            },
+            {
+                text:'取消',
+                action:function(){
+                        dialog.close()                    
+                }  
+            }
+            ]
+        })
+        dialog.open()
     }
-
+</script> -->
+<script>
+    // 尝试性优化
+    class Dialog {
+        constructor(options) {
+            this.options = options
+            this.init()
+            this.maskclose()
+        }
+        // 创建弹窗模板
+        get template(){
+            let {
+                title,
+                content,
+            } = this.options
+            return        `
+                <div class="wzjDialog">
+                    <div class="wzjDialog_wrapper">
+                        <header class="wzjDialog_header">${title}</header>
+                        <main class="wzjDialog_main">${content}</main>
+                        <footer class="wzjDialog_footer"></footer>                 
+                    </div>
+                </div>
+        `
+        }
+        // 创建按钮
+        get createButtons(){
+            // 初始化获取用户参数
+            let {
+                buttons
+            } = this.options
+            // 根据参数buttons遍历添加按钮
+            let buttonArray = buttons.map((buttonsOption) => {
+                // 创建按钮
+                let $button = $('<button></button>')
+                // 获取文本
+                $($button).text(buttonsOption.text)
+                // 绑定事件
+                $($button).on('click', buttonsOption.action)
+                return $button
+            })
+            return buttonArray
+        }
+        init() {         
+            // 模板挂载
+            var $dialog = $(this.template)
+            $dialog.find('.wzjDialog_footer').append(this.createButtons)
+            this.$dialog = $dialog
+        }
+        // 点击遮罩层关闭
+        maskclose() {
+            this.$dialog.on('click', (e) => {
+                var targetContainer = $('.wzjDialog_wrapper')
+                // 通过is方法判断是不是目标元素,通过has方法看长度判断是否是目标元素子集
+                if (!targetContainer.is(e.target) && targetContainer.has(e.target).length === 0) {
+                    this.close()
+                }
+            })
+        }
+        // 弹窗显示
+        open() {
+            this.$dialog.appendTo('body')
+        }
+        // 弹窗关闭
+        close() {
+            // detach()从body中移除,但是占位
+            this.$dialog.detach()
+        }
+    }
     x.onclick = function () {
-        
-        
         var dialog = new Dialog({
             title: '标题',
-            content: '内容',
+            content: 'wzj牛逼',
             buttons: [{
-                text: '确定',
-                action: function () {
-                    setTimeout(() => {
+                    text: '确定',
+                    action: function () {
+                        setTimeout(() => {
+                            dialog.close()
+                        }, 3000)
+                    }
+                },
+                {
+                    text: '取消',
+                    action: function () {
                         dialog.close()
-                    }, 3000)
+                    }
                 }
-            }, {
-                text: '取消',
-                action: function () {
-                    dialog.close()
-                }
-            }]
+            ]
         })
         dialog.open()
     }
